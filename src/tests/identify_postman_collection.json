@@ -1,0 +1,292 @@
+{
+  "info": {
+    "name": "Bitespeed Identity Postman-collection",
+    "description": "Automated tests for /identify route with all possible cases",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Request 1: Create Primary Contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"lorraine@hillvalley.edu\",\"phoneNumber\":\"123456\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/identify",
+          "host": ["{{baseUrl}}"],
+          "path": ["identify"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response matches expected contact\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.contact).to.have.property(\"primaryContatctId\").that.is.a(\"number\");",
+              "    pm.expect(jsonData.contact.emails).to.deep.equal([\"lorraine@hillvalley.edu\"]);",
+              "    pm.expect(jsonData.contact.phoneNumbers).to.deep.equal([\"123456\"]);",
+              "    pm.expect(jsonData.contact.secondaryContactIds).to.deep.equal([]);",
+              "});",
+              "",
+              "// Save primaryContatctId for later tests",
+              "var jsonData = pm.response.json();",
+              "pm.environment.set(\"primaryContactId\", jsonData.contact.primaryContatctId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Request 2: Existing Contact by Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"lorraine@hillvalley.edu\",\"phoneNumber\":null}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/identify",
+          "host": ["{{baseUrl}}"],
+          "path": ["identify"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response matches existing contact\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.contact.primaryContatctId).to.equal(pm.environment.get(\"primaryContactId\"));",
+              "    pm.expect(jsonData.contact.emails).to.deep.equal([\"lorraine@hillvalley.edu\"]);",
+              "    pm.expect(jsonData.contact.phoneNumbers).to.deep.equal([\"123456\"]);",
+              "    pm.expect(jsonData.contact.secondaryContactIds).to.deep.equal([]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Request 3: Create Secondary Contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"mcfly@hillvalley.edu\",\"phoneNumber\":\"123456\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/identify",
+          "host": ["{{baseUrl}}"],
+          "path": ["identify"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response includes secondary contact\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.contact.primaryContatctId).to.equal(pm.environment.get(\"primaryContactId\"));",
+              "    pm.expect(jsonData.contact.emails).to.have.members([\"lorraine@hillvalley.edu\", \"mcfly@hillvalley.edu\"]);",
+              "    pm.expect(jsonData.contact.phoneNumbers).to.deep.equal([\"123456\"]);",
+              "    pm.expect(jsonData.contact.secondaryContactIds).to.have.lengthOf(1);",
+              "    pm.expect(jsonData.contact.secondaryContactIds[0]).to.be.a(\"number\");",
+              "});",
+              "",
+              "// Save secondaryContactId",
+              "var jsonData = pm.response.json();",
+              "pm.environment.set(\"secondaryContactId1\", jsonData.contact.secondaryContactIds[0]);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Request 4: Duplicate Contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"mcfly@hillvalley.edu\",\"phoneNumber\":\"123456\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/identify",
+          "host": ["{{baseUrl}}"],
+          "path": ["identify"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response matches existing secondary contact\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.contact.primaryContatctId).to.equal(pm.environment.get(\"primaryContactId\"));",
+              "    pm.expect(jsonData.contact.emails).to.have.members([\"lorraine@hillvalley.edu\", \"mcfly@hillvalley.edu\"]);",
+              "    pm.expect(jsonData.contact.phoneNumbers).to.deep.equal([\"123456\"]);",
+              "    pm.expect(jsonData.contact.secondaryContactIds).to.deep.equal([pm.environment.get(\"secondaryContactId1\"*1)]);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Request 5 Setup: New Primary Contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"biffsucks@hillvalley.edu\",\"phoneNumber\":\"717171\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/identify",
+          "host": ["{{baseUrl}}"],
+          "path": ["identify"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response creates new primary contact\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.contact).to.have.property(\"primaryContatctId\").that.is.a(\"number\");",
+              "    pm.expect(jsonData.contact.emails).to.deep.equal([\"biffsucks@hillvalley.edu\"]);",
+              "    pm.expect(jsonData.contact.phoneNumbers).to.deep.equal([\"717171\"]);",
+              "    pm.expect(jsonData.contact.secondaryContactIds).to.deep.equal([]);",
+              "});",
+              "",
+              "// Save new primaryContactId",
+              "var jsonData = pm.response.json();",
+              "pm.environment.set(\"primaryContactId2\", jsonData.contact.primaryContatctId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Request 5: Merge Primary Contacts",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"george@hillvalley.edu\",\"phoneNumber\":\"717171\"}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/identify",
+          "host": ["{{baseUrl}}"],
+          "path": ["identify"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response merges contacts\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.contact.primaryContatctId).to.equal(pm.environment.get(\"primaryContactId\"));",
+              "    pm.expect(jsonData.contact.emails).to.have.members([",
+              "        \"lorraine@hillvalley.edu\",",
+              "        \"mcfly@hillvalley.edu\",",
+              "        \"george@hillvalley.edu\",",
+              "        \"biffsucks@hillvalley.edu\"",
+              "    ]);",
+              "    pm.expect(jsonData.contact.phoneNumbers).to.have.members([\"123456\", \"717171\"]);",
+              "    pm.expect(jsonData.contact.secondaryContactIds).to.have.lengthOf(3);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}

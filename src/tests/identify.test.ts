@@ -1,3 +1,6 @@
+/*Testing identify and all dbOperations, this is fo rtesting as it will reset datbase 
+after each iteration and indexing will still grow.
+Suggested to go with postman collection "identify_postman_collection.json"  */
 import { Application } from 'express';
 import express from 'express';
 import request from 'supertest';
