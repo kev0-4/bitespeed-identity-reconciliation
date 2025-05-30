@@ -10,8 +10,7 @@ import {
   PrismaClient,
   Contact as PrismaContact,
   LinkPrecedence,
-} from "../generated/prisma";
-
+} from  "@prisma/client";
 const prisma = new PrismaClient();
 
 interface ConsolidatedContact {
