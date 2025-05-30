@@ -4,7 +4,7 @@ Suggested to go with postman collection "identify_postman_collection.json"  */
 import { Application } from 'express';
 import express from 'express';
 import request from 'supertest';
-import { PrismaClient, Contact as PrismaContact } from '../generated/prisma';
+import { PrismaClient, Contact as PrismaContact } from "@prisma/client";
 import { identifyRouter } from '../routes/identify';
 
 // Initialize Express app

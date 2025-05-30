@@ -4,7 +4,7 @@ import {
   PrismaClient,
   Contact as PrismaContact,
   LinkPrecedence,
-} from "../generated/prisma";
+} from "@prisma/client";
 import {
   findMatchingContacts,
   createPrimaryContact,
