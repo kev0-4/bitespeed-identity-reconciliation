@@ -1,27 +1,74 @@
+//@ts-nocheck
 import { Router, Request, Response } from "express";
+import { z } from "zod";
 import { identifySchema } from "../validation/zodSchemas";
-import { z } from 'zod';
+import {
+  findMatchingContacts,
+  createPrimaryContact,
+  createSecondaryContact,
+  mergePrimaryContacts,
+  buildConsolidatedContact,
+} from "../utils/databaseOperations";
+import { LinkPrecedence } from "../generated/prisma";
+
 export const identifyRouter = Router();
 
-identifyRouter.post('/', (req: Request, res: Response) => {
+identifyRouter.post("/", async (req: Request, res: Response) => {
   try {
     const validatedData = identifySchema.parse(req.body);
-    res.status(200).json({
-      message: 'Input validated successfully',
-      contact: {
-        email: validatedData.email,
-        phoneNumber: validatedData.phoneNumber,
-      },
-    });
+    const { email, phoneNumber } = validatedData;
+
+    const matchingContacts = await findMatchingContacts(email, phoneNumber);
+
+    if (matchingContacts.length === 0) {
+      const newContact = await createPrimaryContact(email, phoneNumber);
+      const response = await buildConsolidatedContact(newContact.id);
+      return res.status(200).json({ contact: response });
+    }
+
+    let primaryContact = matchingContacts.reduce((oldest, current) =>
+      oldest.createdAt < current.createdAt ? oldest : current
+    );
+
+    const primaryContacts = matchingContacts.filter(
+      (c) => c.linkPrecedence === LinkPrecedence.primary && c.linkedId === null
+    );
+
+    if (primaryContacts.length > 1) {
+      const sortedPrimaries = primaryContacts.sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+      );
+      primaryContact = sortedPrimaries[0];
+
+      for (const otherPrimary of sortedPrimaries.slice(1)) {
+        await mergePrimaryContacts(otherPrimary.id, primaryContact.id);
+      }
+    }
+
+    const hasNewInfo = !matchingContacts.some(
+      (c) =>
+        (c.email?.toLowerCase() === email?.toLowerCase() ||
+          (!c.email && !email)) &&
+        (c.phoneNumber === phoneNumber || (!c.phoneNumber && !phoneNumber))
+    );
+
+    if (hasNewInfo) {
+      await createSecondaryContact(email, phoneNumber, primaryContact.id);
+    }
+
+    const response = await buildConsolidatedContact(primaryContact.id);
+    return res.status(200).json({ contact: response });
   } catch (error) {
+    console.error("Error in /identify endpoint:", error);
     if (error instanceof z.ZodError) {
-      res.status(400).json({
-        error: 'Invalid input',
-        //@ts-ignore
+      return res.status(400).json({
+        error: "Invalid input",
         details: error.errors,
       });
-    } else {
-      res.status(500).json({ error: 'Internal server error' });
     }
+    return res.status(500).json({
+      error: "Internal server error",
+      message: (error as Error).message,
+    });
   }
 });

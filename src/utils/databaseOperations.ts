@@ -26,6 +26,7 @@ async function findMatchingContacts(
   phoneNumber: string | null
 ): Promise<PrismaContact[]> {
   try {
+    console.log("Finding matching contacts");
     if (!email && !phoneNumber) {
       throw new Error("At least one of email or phoneNumber must be provided");
     }
@@ -59,6 +60,7 @@ async function createPrimaryContact(
   phoneNumber: string | null
 ): Promise<PrismaContact> {
   try {
+    console.log("Creating primary contact");
     const contact = await prisma.contact.create({
       data: {
         email,
@@ -81,6 +83,7 @@ async function createSecondaryContact(
   primaryId: number
 ): Promise<PrismaContact> {
   try {
+    console.log("Creating secondary contact");
     const contact = await prisma.contact.create({
       data: {
         email,
@@ -103,6 +106,7 @@ async function mergePrimaryContacts(
   olderPrimaryId: number
 ): Promise<void> {
   try {
+    console.log("Merging primary contacts");
     await prisma.contact.update({
       where: { id: newerContactId },
       data: {
@@ -134,6 +138,7 @@ async function buildConsolidatedContact(
   primaryId: number
 ): Promise<ConsolidatedContact> {
   try {
+    console.log("Building consolidated contact");
     const contacts = await prisma.contact.findMany({
       where: {
         OR: [{ id: primaryId }, { linkedId: primaryId }],
