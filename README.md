@@ -4,6 +4,7 @@
 
 - **Deployed API**: `https://bitespeed-identity-kevin.onrender.com`
 - **Local testing**: `http://localhost:3000`
+- **Route**: `https://bitespeed-identity-kevin.onrender.com/identify`
 
 ## Overview
 
@@ -58,7 +59,10 @@ enum LinkPrecedence {
 - **Indexes**: On `email` and `phoneNumber` for efficient queries
 
 ## API Routes
-
+**Sample Body Example to Test**
+```json 
+https://bitespeed-identity-kevin.onrender.com
+```
 The API exposes one endpoint:
 
 ### POST `/identify`
@@ -218,7 +222,7 @@ The application is configured for deployment on Render.com:
 ### Creating a new contact:
 
 ```bash
-curl -X POST https://your-render-url.onrender.com/identify \
+curl -X POST [https://your-render-url.onrender.com](https://bitespeed-identity-kevin.onrender.com)/identify \
   -H "Content-Type: application/json" \
   -d '{"email": "john@example.com", "phoneNumber": "1234567890"}'
 ```
