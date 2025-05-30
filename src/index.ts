@@ -1,15 +1,11 @@
-import express from "express";
-import dotenv from "dotenv";
-
-dotenv.config();
-
+import express from 'express';
+import { identifyRouter } from './routes/identify'; 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-app.get("/", (_req, res) => {
-  res.send("Hello World");
-});
+app.use(express.json());
+app.use('/identify', identifyRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
