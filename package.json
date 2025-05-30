@@ -12,14 +12,19 @@
   "author": "Kevin Tandon",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "@prisma/extension-accelerate": "^2.0.1",
     "@types/express": "^5.0.2",
     "@types/node": "^22.15.28",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "pg": "^8.16.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "zod": "^3.25.42"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "prisma": "^6.8.2"
   }
 }
