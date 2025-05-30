@@ -10,6 +10,7 @@ import {
   buildConsolidatedContact,
 } from "../utils/databaseOperations";
 // import { LinkPrecedence } from "../generated/prisma";
+
 import { LinkPrecedence } from "@prisma/client";
 export const identifyRouter = Router();
 
