@@ -61,7 +61,7 @@ enum LinkPrecedence {
 ## API Routes
 **Sample Body Example to Test**
 ```json 
-https://bitespeed-identity-kevin.onrender.com
+{"email":"lorraine@hillvalley.edu","phoneNumber":"123456"}
 ```
 The API exposes one endpoint:
 
